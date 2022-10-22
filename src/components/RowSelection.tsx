@@ -1,12 +1,13 @@
 import React, { useMemo } from 'react'
-import { useTable } from "react-table";
+import { useTable, useRowSelect } from "react-table";
 import { COLUMNS, GROUPED_COLUMNS } from "./columns";
 import MOCK_DATA from "./MOCK_DATA.json";
 import "../styles/Table.css";
+import Checkbox from "./CheckBox";
 
 type Props = {}
 
-const BasicTable: React.FC<Props> = (props) => {
+const RowSelection: React.FC<Props> = (props) => {
 
     const columns = useMemo(() => COLUMNS, []);
     const data = useMemo(() => MOCK_DATA, []);
@@ -16,10 +17,39 @@ const BasicTable: React.FC<Props> = (props) => {
      * Ensures that data isn't recreated on every render.
      */
 
-    const { getTableProps, getTableBodyProps, headerGroups, footerGroups, rows, prepareRow } = useTable({
+    const {
+        getTableProps,
+        getTableBodyProps,
+        headerGroups,
+        footerGroups,
+        rows,
+        prepareRow,
+        selectedFlatRows,
+    } = useTable({
         columns,
-        data: data as any
-    });
+        data,
+    },
+        useRowSelect,
+        (hooks) => {
+            // This function gets all the table hooks as an argument.
+            // We can use this to add our own custom hooks.
+            hooks.visibleColumns.push((columns) => {
+                return [
+                    {
+                        id: 'selection',
+                        Header: ({ getToggleAllRowsSelectedProps }) => (
+                            <Checkbox {...getToggleAllRowsSelectedProps()} />
+                        ),
+                        Cell: ({ row }) => (
+                            <Checkbox {...row.getToggleRowSelectedProps()} />
+                        )
+                    },
+                    ...columns
+                ]
+            });
+        });
+
+    const firstPageRows = rows.slice(0, 10);
 
     return (
         <main>
@@ -39,7 +69,7 @@ const BasicTable: React.FC<Props> = (props) => {
                 </thead>
                 <tbody {...getTableBodyProps()}>
                     {
-                        rows.map((row) => {
+                        firstPageRows.map((row) => {
                             prepareRow(row);
                             return (
                                 <tr {...row.getRowProps()}>
@@ -64,8 +94,19 @@ const BasicTable: React.FC<Props> = (props) => {
                     ))}
                 </tfoot>
             </table>
+            <pre>
+                <code>
+                    {JSON.stringify(
+                        {
+                            selectedFlatRows: selectedFlatRows.map((row) => row.original)
+                        },
+                        null,
+                        2
+                    )}
+                </code>
+            </pre>
         </main>
     )
 }
 
-export default BasicTable
+export default RowSelection

@@ -1,12 +1,14 @@
 import React, { useMemo } from 'react'
-import { useTable } from "react-table";
-import { COLUMNS, GROUPED_COLUMNS } from "./columns";
+import { useTable, useGlobalFilter, useFilters } from "react-table";
+import { COLUMNS, Data, GROUPED_COLUMNS } from "./columns";
 import MOCK_DATA from "./MOCK_DATA.json";
 import "../styles/Table.css";
+import GlobalFilter from './GlobalFilter';
+import ColumnFilter from './ColumnFilter';
 
 type Props = {}
 
-const BasicTable: React.FC<Props> = (props) => {
+const FilteringTable: React.FC<Props> = (props) => {
 
     const columns = useMemo(() => COLUMNS, []);
     const data = useMemo(() => MOCK_DATA, []);
@@ -16,21 +18,44 @@ const BasicTable: React.FC<Props> = (props) => {
      * Ensures that data isn't recreated on every render.
      */
 
-    const { getTableProps, getTableBodyProps, headerGroups, footerGroups, rows, prepareRow } = useTable({
+    // Properties that need to be applied to all columns in the table 👇
+    const defaultColumn = useMemo(() => ({ Filter: ColumnFilter }), [])
+
+
+    const {
+        getTableProps,
+        getTableBodyProps,
+        headerGroups,
+        footerGroups,
+        rows,
+        prepareRow,
+        state,
+        setGlobalFilter
+    } = useTable({
         columns,
-        data: data as any
-    });
+        data,
+        defaultColumn
+    }, useFilters);
+
+    const { globalFilter } = (state as any);
 
     return (
         <main>
+            <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} />
             <table {...getTableProps()}>
                 <thead>
                     {
                         headerGroups.map((headerGroup) => (
                             <tr {...headerGroup.getHeaderGroupProps()}>
                                 {
-                                    headerGroup.headers.map((column) => (
-                                        <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+                                    headerGroup.headers.map((column: any) => (
+                                        <th {...column.getHeaderProps()}>
+                                            <>
+                                                {column.render('Header')}
+                                                <br />
+                                                {column.canFilter ? column.render("Filter") : null}
+                                            </>
+                                        </th>
                                     ))
                                 }
                             </tr>
@@ -68,4 +93,4 @@ const BasicTable: React.FC<Props> = (props) => {
     )
 }
 
-export default BasicTable
+export default FilteringTable

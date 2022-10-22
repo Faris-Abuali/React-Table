@@ -1,23 +1,42 @@
-export const COLUMNS = [
+import { Column } from "react-table";
+import { format } from 'date-fns';
+import ColumnFilter from './ColumnFilter';
+export interface Data {
+    id: number,
+    first_name: string,
+    last_name: string,
+    date_of_birth: string,
+    country: string,
+    phone: string,
+}
+
+export const COLUMNS: any[] = [
     {
         Header: 'Id',
         Footer: 'Id',
         accessor: 'id',
+        disableFilters: true,
+        sticky: 'left'
     },
     {
         Header: 'First Name',
         Footer: 'First Name',
         accessor: 'first_name',
+        sticky: 'left'
     },
     {
         Header: 'Last Name',
         Footer: 'Last Name',
         accessor: 'last_name',
+        sticky: 'left'
     },
     {
         Header: 'Date of Birth',
         Footer: 'Date of Birth',
         accessor: 'date_of_birth',
+        Cell: ({ value }) => {
+            return format(new Date(value), 'dd-MMM-yyyy');
+        }
     },
     {
         Header: 'Country',
@@ -28,6 +47,16 @@ export const COLUMNS = [
         Header: 'Phone',
         Footer: 'Phone',
         accessor: 'phone',
+    },
+    {
+        Header: 'Email',
+        Footer: 'Email',
+        accessor: 'email',
+    },
+    {
+        Header: 'Age',
+        Footer: 'Age',
+        accessor: 'age',
     },
 ]
 

@@ -1,12 +1,12 @@
 import React, { useMemo } from 'react'
-import { useTable } from "react-table";
+import { useTable, useColumnOrder } from "react-table";
 import { COLUMNS, GROUPED_COLUMNS } from "./columns";
 import MOCK_DATA from "./MOCK_DATA.json";
 import "../styles/Table.css";
 
 type Props = {}
 
-const BasicTable: React.FC<Props> = (props) => {
+const ColumnOrder: React.FC<Props> = (props) => {
 
     const columns = useMemo(() => COLUMNS, []);
     const data = useMemo(() => MOCK_DATA, []);
@@ -16,13 +16,31 @@ const BasicTable: React.FC<Props> = (props) => {
      * Ensures that data isn't recreated on every render.
      */
 
-    const { getTableProps, getTableBodyProps, headerGroups, footerGroups, rows, prepareRow } = useTable({
+    const {
+        getTableProps,
+        getTableBodyProps,
+        headerGroups,
+        footerGroups,
+        rows,
+        prepareRow,
+        setColumnOrder
+    } = useTable({
         columns,
         data: data as any
-    });
+    }, useColumnOrder);
 
+    const changeOrder = () => {
+        setColumnOrder(['id', 'first_name', 'last_name', 'phone', 'country', 'date_of_birth']);
+    }
     return (
         <main>
+            <button
+                onClick={() => setColumnOrder(['id', 'first_name', 'last_name', 'date_of_birth', 'country', 'phone'])}>
+                Reset Order
+            </button>
+            <button onClick={changeOrder}>
+                Change order
+            </button>
             <table {...getTableProps()}>
                 <thead>
                     {
@@ -68,4 +86,4 @@ const BasicTable: React.FC<Props> = (props) => {
     )
 }
 
-export default BasicTable
+export default ColumnOrder
